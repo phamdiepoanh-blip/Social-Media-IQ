@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Social media IQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap"stylesheet">
+  <style>
+    :root{--bg:#07121a;--card:#0b2430;--accent:#7b61ff;--accent2:#66f0d9;--text:#e6fbff}
+   html,body {margin: 0;height: 100vh;background: url("assets/nền.png") no-repeat center center fixed;background-size: cover;font-family:"Orbitron",monospace;color:var(--text);-webkit-font-smoothing:antialiased;}
+
+    .container{max-width:900px;margin:30px auto;padding:24px;border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 10px 40px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+    header{display:flex;align-items:center;gap:18px}
+    .logo{width:84px;height:84px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(102,240,217,0.09) inset}
+    .logo span{font-size:20px}
+    h1{font-size:22px;margin:0}
+    p.lead{margin:8px 0 18px;color:rgba(230,251,255,0.85);font-size:18px}
+
+    .stage{display:grid;grid-template-columns:1fr 320px;gap:18px}
+    .card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+
+    .intro{min-height:120px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+    .question{font-size:22px;line-height:1.6}
+    .typing{font-family:inherit;font-size:20px;color:var(--accent2);min-height:40px}
+
+    .answers{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+    .opt{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.05));cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
+    .opt.selected{outline:2px solid rgba(123,97,255,0.25);transform:translateY(-2px)}
+    .opt input{display:none}
+    .opt .bullet{width:20px;height:20px;border-radius:4px;border:2px solid rgba(230,251,255,0.08);display:flex;align-items:center;justify-content:center;font-size:11px}
+    .controls{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+    .btn{background:linear-gradient(180deg,var(--accent),#4d27d9);padding:10px 14px;border-radius:8px;border:none;color:white;font-weight:700;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04)}
+
+    .side{position:relative}
+    .hearts{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+    .heart{width:28px;height:28px;background:#2a0b12;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#ff6b81;font-weight:900;border:2px solid rgba(255,255,255,0.03)}
+    .progress{font-size:11px;color:rgba(230,251,255,0.8)}
+
+    .explain-popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(0.98);background:linear-gradient(180deg,#081a20,#071318);border:2px solid rgba(123,97,255,0.12);padding:18px;border-radius:12px;min-width:360px;z-index:60;box-shadow:0 20px 60px rgba(0,0,0,0.6);display:none}
+    .explain-popup.show{display:block;animation:pop .28s ease}
+    @keyframes pop{from{transform:translate(-50%,-50%) scale(.9);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+    .explain-popup p{font-size:22px;margin:8px 0}
+
+    .footer-small{font-size:10px;opacity:0.7;margin-top:12px}
+
+    /* pixel grid overlay */
+    .pixel-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);background-size:10px 10px,10px 10px;opacity:0.08}
+
+    /* modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(0deg, rgba(0,0,0,0.6), rgba(0,0,0,0.6));z-index:80}
+    .modal .box{background:#04131a;padding:18px;border-radius:12px;border:1px solid rgba(123,97,255,0.08);min-width:360px}
+
+    @media (max-width:880px){.stage{grid-template-columns:1fr;}.side{order:-1}}
+  </style>
+</head>
+<body>
+<audio id="bg-music" autoplay loop muted>
+  <source src="assets/nhạc.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  document.addEventListener("click", () => {
+    const music = document.getElementById("bg-music");
+    music.muted = false;
+    music.play();
+  }, { once: true });
+</script>
+  </audio>  <div class="container">
+    <header>
+  <div class="logo">
+    <img src="assets/logo.png" alt="Logo" style="height: 87px; width: auto;">
+  </div>
+  <div>
+  </div>
+</header>
+
+
+    <div class="stage">
+      <div class="card">
+        <div class="intro">
+          <div class="typing" id="introText"></div>
+          <img id="startBtn" src="assets/startbutton.png" alt="Start" style="width:200px; cursor:pointer;">
+        </div>
+
+        <div id="gameArea" style="display:none">
+          <div class="question" id="qText"></div>
+          <div class="answers" id="answers"></div>
+          <div class="controls">
+            <div class="progress" id="qProgress">Câu 1 / 10</div>
+            <div>
+              <button class="btn secondary" id="skipBtn">Bỏ qua</button>
+              <button class="btn" id="submitBtn">Nộp</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <aside class="card side">
+        <div class="pixel-grid"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="hearts" id="hearts"></div>
+            <div class="progress" id="scoreText">Điểm: 0</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:20px;opacity:0.8">Còn lại</div>
+            <div id="remainingText" style="font-weight:900;font-size:18px">5 tim</div>
+          </div>
+        </div>
+        <div style="margin-top:18px;font-size:16px">Hướng dẫn: Chọn đánh giá của bạn đói với mỗi hành vi sử dụng MXH sau theo thang 
+🟢Bình thường - 🟡Có chút rủi ro - 🔴Thiếu cẩn trọng. Với mỗi đáp án sai đã chọn, bạn mất 1 tim.</div>
+        <div class="footer-small"></div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="explain-popup" id="explainPopup">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <strong id="expTitle">Giải thích</strong>
+      <div id="expIcon">✨</div>
+    </div>
+    <p id="expText"></p>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+      <button class="btn secondary" id="closeExplain">Đóng</button>
+      <button class="btn" id="nextBtn">Câu tiếp</button>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="box">
+      <h3 id="modalTitle">Kết thúc</h3>
+      <p id="modalText"></p>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="btn secondary" id="restartBtn">Chơi lại</button>
+        <button class="btn" id="closeModal">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+   // --- game data ---
+const QUESTIONS = [
+  {
+    q: 'Khi bạn buồn, bạn thường viết status dài “tâm sự thật lòng” lên MXH.',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:true},
+      {t:'🔴 Thiếu cẩn trọng', ok:false}
+    ],
+    exp: 'Việc chia sẻ cảm xúc không xấu, thậm chí có thể giúp giải tỏa và nhận được sự đồng cảm.\nNhưng nếu quá chi tiết, quá thường xuyên (overshare), bạn dễ bị:\n- Người khác đánh giá, chế giễu.\n- Kẻ xấu lợi dụng thông tin cá nhân hoặc cảm xúc.\n- Phụ thuộc vào MXH để tìm sự an ủi thay vì chia sẻ trực tiếp với người thân/bạn bè đáng tin cậy.\n👉 Vì thế, đây là hành vi có rủi ro, cần điều chỉnh để giữ sự riêng tư và an toàn tâm lý.'
+  },
+  {
+    q: 'Bạn đăng 50 ảnh kỳ nghỉ biển, trong đó có ảnh gia đình, em nhỏ và biển số xe.',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:false},
+      {t:'🔴 Thiếu cẩn trọng', ok:true}
+    ],
+    exp: 'Việc chia sẻ quá nhiều ảnh riêng tư khiến lộ thông tin nhạy cảm (khuôn mặt trẻ em, biển số xe, địa điểm). Những chi tiết này có thể bị kẻ xấu lợi dụng để theo dõi, giả mạo hoặc xâm phạm đời sống riêng tư của bạn và gia đình.'
+  },
+  {
+    q: 'Một ngày bạn đăng 15 story: từ ăn sáng, đi học, vào lớp, tan học, đi chơi, về nhà.',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:true},
+      {t:'🔴 Thiếu cẩn trọng', ok:false}
+    ],
+    exp: 'Đăng quá nhiều story làm lộ lịch trình sinh hoạt hằng ngày. Người lạ có thể theo dõi thói quen của bạn, gây nguy cơ mất an toàn. Ngoài ra, bạn cũng dễ bị phụ thuộc vào MXH để “khoe” mọi hoạt động thay vì sống thoải mái ngoài đời.'
+  },
+  {
+    q: 'Bạn dùng ứng dụng AI để ghép mặt bạn bè/giáo viên vào ảnh hoặc video hài hước rồi đăng lên MXH cho vui.',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:false},
+      {t:'🔴 Thiếu cẩn trọng', ok:true}
+    ],
+    exp: 'Dùng AI ghép mặt có thể làm người khác khó chịu, xâm phạm quyền riêng tư và danh dự. Nếu bị lan truyền rộng, hình ảnh đó có thể bị hiểu sai, gây tổn hại đến uy tín của người bị ghép mặt và cả chính bạn. Ngoài ra, một số ứng dụng AI còn lưu trữ dữ liệu khuôn mặt, tiềm ẩn nguy cơ bị lợi dụng về sau.'
+  },
+  {
+    q: 'Bạn vô tình thả tim một bài viết xúc phạm giáo viên. Người khác chụp màn hình lại.',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:true},
+      {t:'🔴 Thiếu cẩn trọng', ok:false}
+    ],
+    exp: 'Dù bạn không cố ý, hành động thả tim có thể bị hiểu nhầm là đồng tình với nội dung xúc phạm. Điều này ảnh hưởng đến uy tín và mối quan hệ của bạn với thầy cô. Khi có bằng chứng chụp màn hình, việc giải thích càng khó khăn. 👉 Đây là hành vi rủi ro, cần cẩn thận hơn khi tương tác trên MXH.'
+  },
+  {
+    q: 'Khi lướt mạng xã hội, bạn thường so sánh bản thân với hình ảnh lung linh của người khác, cảm thấy tự ti nên đăng những bài “sống ảo” để chứng tỏ mình không thua kém.',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:true},
+      {t:'🔴 Thiếu cẩn trọng', ok:false}
+    ],
+    exp: 'Hành vi này không trực tiếp gây nguy hiểm như lộ thông tin cá nhân (nên không phải 🔴).\nNhưng nó tạo ra áp lực tâm lý, FOMO, khiến bạn chạy theo hình ảnh ảo, xa rời giá trị thật của bản thân. Nếu kéo dài sẽ ảnh hưởng tiêu cực đến tự tin, sức khỏe tinh thần. 👉 Đây là hành vi có rủi ro, cần điều chỉnh.'
+  },
+  {
+    q: 'Bạn viết bình luận mỉa mai/ác ý.',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:false},
+      {t:'🔴 Thiếu cẩn trọng', ok:true}
+    ],
+    exp: 'Hành vi này có thể bị coi là bắt nạt trên mạng (cyberbullying), gây tổn thương cho người khác và ảnh hưởng đến hình ảnh của bạn. Bình luận tiêu cực dễ bị chụp lại, lan truyền, dẫn đến hậu quả nghiêm trọng như mâu thuẫn, kỷ luật ở trường hoặc mất uy tín lâu dài.'
+  },
+  {
+    q: 'Bạn dùng chung mật khẩu Facebook cho nhiều tài khoản khác nhau (email, học trực tuyến…).',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:false},
+      {t:'🔴 Thiếu cẩn trọng', ok:true}
+    ],
+    exp: 'Dùng chung mật khẩu cho nhiều tài khoản rất dễ bị hack, mất kiểm soát dữ liệu. 👉 Đây là hành vi thiếu cẩn trọng, cần thay đổi ngay.'
+  },
+  {
+    q: 'Bạn dùng Facebook để đăng ký các website học tập miễn phí. Để cho nhanh, bạn cấp quyền “truy cập toàn bộ thông tin cá nhân” mà không đọc kỹ.',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:false},
+      {t:'🔴 Thiếu cẩn trọng', ok:true}
+    ],
+    exp: 'Khi cho phép truy cập toàn bộ thông tin cá nhân (ảnh, email, danh bạ, bạn bè…), dữ liệu của bạn có thể bị thu thập, bán hoặc lợi dụng cho mục đích xấu. Việc không kiểm soát quyền truy cập khiến bạn dễ bị spam, lừa đảo hoặc đánh cắp danh tính.'
+  },
+  {
+    q: 'Bạn thấy một bài viết trên MXH nói rằng “Một sự kiện lịch sử của Việt Nam đã bị che giấu, sự thật hoàn toàn khác sách giáo khoa”, kèm theo vài hình ảnh cắt ghép. Vì nghĩ thú vị, bạn chia sẻ lại với caption: “Hóa ra lịch sử không như mình học”.',
+    opts: [
+      {t:'🟢 Bình thường', ok:false},
+      {t:'🟡 Có chút rủi ro', ok:false},
+      {t:'🔴 Thiếu cẩn trọng', ok:true}
+    ],
+    exp: 'Đây có thể là tin giả hoặc thông tin bị cắt ghép sai lệch. Chia sẻ lại mà không kiểm chứng sẽ khiến bạn vô tình lan truyền tin giả, ảnh hưởng đến nhận thức của người khác và cả uy tín của bạn.'
+  }
+];
+
+
+    // Synthesised simple sounds with WebAudio
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+    function clickSound(){
+      const o=ctx.createOscillator();const g=ctx.createGain();o.type='square';o.frequency.value=900;g.gain.value=0.02;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.03);
+    }
+    function heartLoseSound(){
+      const o1=ctx.createOscillator();const o2=ctx.createOscillator();const g=ctx.createGain();o1.type='sawtooth';o2.type='triangle';o1.frequency.value=220;o2.frequency.value=330;g.gain.value=0.05;o1.connect(g);o2.connect(g);g.connect(ctx.destination);o1.start();o2.start();o1.stop(ctx.currentTime+0.28);o2.stop(ctx.currentTime+0.28);
+    }
+    function synthTap(freq,dur){const o=ctx.createOscillator();const g=ctx.createGain();o.type='sine';o.frequency.value=freq;g.gain.value=0.01;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+dur||0.06)}
+
+    // subtle ambient loop
+    let ambient;
+    function startAmbient(){
+      if(ambient) return;
+      const gain = ctx.createGain();gain.gain.value=0.004;gain.connect(ctx.destination);
+      const o = ctx.createOscillator();o.type='sine';o.frequency.value=110;o.connect(gain);o.start();
+      const o2 = ctx.createOscillator();o2.type='sine';o2.frequency.value=55;o2.connect(gain);o2.start();
+      ambient = [o,o2,gain];
+    }
+    function stopAmbient(){if(!ambient) return;ambient.forEach(n=>n.stop&&n.stop());ambient=null}
+
+    // --- UI logic ---
+    const introTextEl = document.getElementById('introText');
+    const startBtn = document.getElementById('startBtn');
+    const gameArea = document.getElementById('gameArea');
+    const qText = document.getElementById('qText');
+    const answers = document.getElementById('answers');
+    const submitBtn = document.getElementById('submitBtn');
+    const skipBtn = document.getElementById('skipBtn');
+    const qProgress = document.getElementById('qProgress');
+    const heartsEl = document.getElementById('hearts');
+    const remainingText = document.getElementById('remainingText');
+    const scoreText = document.getElementById('scoreText');
+
+    const explainPopup = document.getElementById('explainPopup');
+    const expText = document.getElementById('expText');
+    const nextBtn = document.getElementById('nextBtn');
+    const closeExplain = document.getElementById('closeExplain');
+
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalText = document.getElementById('modalText');
+    const restartBtn = document.getElementById('restartBtn');
+    const closeModal = document.getElementById('closeModal');
+
+    let current = 0; let hearts = 5; let score = 0;
+    function renderHearts(){heartsEl.innerHTML='';for(let i=0;i<hearts;i++){const d=document.createElement('div');d.className='heart';d.textContent='❤';heartsEl.appendChild(d);}remainingText.textContent=hearts+' tim';}
+
+    function typeIntro(text,done){let i=0;function step(){if(i<text.length){introTextEl.textContent+=text[i++];clickSound();setTimeout(step,40)}else done&&done();}step();}
+    typeIntro('Bạn sử dụng mạng xã hội thông minh đến đâu?',()=>{});
+
+    startBtn.addEventListener('click',async ()=>{
+      // resume audio context on user gesture
+      if(ctx.state==='suspended') await ctx.resume();
+      startAmbient();
+      document.getElementById('startBtn').style.display='none';
+      introTextEl.style.opacity='0.9';
+      // tiny typing confirmation
+      synthTap(700,0.06);
+      setTimeout(()=>{gameArea.style.display='block';showQuestion();},400);
+    });
+
+    function showQuestion(){
+      const q = QUESTIONS[current];
+      qProgress.textContent = 'Câu ' + (current+1) + ' / ' + QUESTIONS.length;
+      qText.textContent = q.q;
+      answers.innerHTML = '';
+      q.opts.forEach((opt,i)=>{
+        const el = document.createElement('label');el.className='opt';el.tabIndex=0;
+        el.innerHTML = `<div class="bullet">${String.fromCharCode(65+i)}</div><div style="flex:1">${opt.t}</div>`;
+        el.addEventListener('click',()=>{el.classList.toggle('selected');clickSound();});
+        answers.appendChild(el);
+      });
+    }
+
+    submitBtn.addEventListener('click',()=>{
+      clickSound();evaluateAnswer();
+    });
+    skipBtn.addEventListener('click',()=>{clickSound();showExplanation('Bạn đã bỏ qua câu hỏi này.','Hãy chú ý khi sử dụng MXH.');});
+
+    function evaluateAnswer(){
+      const q = QUESTIONS[current];
+      const optsEls = Array.from(answers.querySelectorAll('.opt'));
+      // determine selections
+      const selected = optsEls.map((el,i)=>({i,sel:el.classList.contains('selected')}));
+      let wrongCount = 0;let correctCount=0;
+      selected.forEach(s=>{
+        if(s.sel){
+          if(!q.opts[s.i].ok) wrongCount++;
+          else correctCount++;
+        }
+      });
+      // hearts penalty: each selected wrong -1 heart
+      if(wrongCount>0){
+        hearts -= wrongCount;
+        if(hearts<0) hearts=0;
+        heartLoseSound();
+      } else {
+        // reward points for selecting correct answers
+        score += correctCount * 10;
+      }
+      renderHearts();scoreText.textContent = 'Điểm: '+score;
+      // Prepare explanation text
+      showExplanation(q.exp);
+    }
+
+    function showExplanation(txt,subtitle){
+      expText.textContent = txt || '';
+      explainPopup.classList.add('show');
+      // if hearts depleted, show game over when closing
+    }
+
+    nextBtn.addEventListener('click',()=>{
+      explainPopup.classList.remove('show');
+      current++;
+      if(hearts<=0){showModal('Thua cuộc','Bạn đã mất hết tim. Hãy thử lại để học cách dùng MXH an toàn.');return}
+      if(current>=QUESTIONS.length){showModal('Hoàn thành','Bạn đã hoàn thành trò chơi! Điểm của bạn: '+score);return}
+      showQuestion();
+    });
+    closeExplain.addEventListener('click',()=>{explainPopup.classList.remove('show');if(hearts<=0){showModal('Thua cuộc','Bạn đã mất hết tim. Hãy thử lại để học cách dùng MXH an toàn.');return}});
+
+    function showModal(title,text){modalTitle.textContent=title;modalText.textContent=text;modal.style.display='flex';}
+    restartBtn.addEventListener('click',()=>{modal.style.display='none';resetGame();});
+    closeModal.addEventListener('click',()=>{modal.style.display='none';});
+
+    function resetGame(){current=0;hearts=5;score=0;renderHearts();scoreText.textContent='Điểm: 0';showQuestion();}
+
+    // initial hearts
+    renderHearts();
+
+    // small accessibility: keyboard toggles
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Enter' && gameArea.style.display==='block') evaluateAnswer();
+    });
+
+    // quick touch: start by clicking intro text as well
+    introTextEl.addEventListener('click',()=>startBtn.click());
+
+    // when leaving page, stop audio
+    window.addEventListener('beforeunload',()=>{stopAmbient();});
+  </script>
+</body>
+</html>
